@@ -1,78 +1,142 @@
 import 'package:flutter/material.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:window_manager/window_manager.dart';
 
+
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
+
 
   await windowManager.ensureInitialized();
 
+
   const windowOptions = WindowOptions(
+
     size: Size(520, 64),
+
     minimumSize: Size(520, 64),
+
     maximumSize: Size(520, 64),
+
     center: true,
+
     backgroundColor: Colors.transparent,
+
     skipTaskbar: false,
+
     titleBarStyle: TitleBarStyle.hidden,
+
   );
 
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
 
-    await windowManager.setAlwaysOnTop(true);
+  await windowManager.waitUntilReadyToShow(
+    windowOptions,
+    () async {
+
+      await windowManager.show();
+
+      await windowManager.focus();
+
+      await windowManager.setAlwaysOnTop(true);
+
+    },
+  );
+
+
+  // bitsdojo_window設定
+  doWhenWindowReady(() {
+
+    final win = appWindow;
+
+
+    win.minSize = const Size(520, 64);
+
+    win.size = const Size(520, 64);
+
+
+    win.alignment = Alignment.center;
+
+
+    win.show();
+
   });
 
+
   runApp(const NowBarApp());
+
 }
+
 
 
 class NowBarApp extends StatelessWidget {
+
   const NowBarApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
 
+
       theme: ThemeData(
+
         brightness: Brightness.dark,
+
       ),
 
+
       home: const NowBarHome(),
+
     );
+
   }
+
 }
 
 
+
+
 class NowBarHome extends StatelessWidget {
+
   const NowBarHome({super.key});
+
 
 
   @override
   Widget build(BuildContext context) {
+
 
     return Scaffold(
 
       backgroundColor: Colors.transparent,
 
+
       body: GestureDetector(
 
         onPanStart: (_) {
+
           windowManager.startDragging();
+
         },
 
 
         child: Container(
 
-          margin: const EdgeInsets.all(5),
+          margin: const EdgeInsets.all(0),
+
 
           decoration: BoxDecoration(
 
             color: const Color(0xff181818),
 
+
             borderRadius:
-                BorderRadius.circular(18),
+
+                BorderRadius.circular(12),
 
 
             boxShadow: const [
@@ -94,11 +158,11 @@ class NowBarHome extends StatelessWidget {
 
             children: [
 
+
               const SizedBox(width: 8),
 
 
 
-              // ジャケット
               Container(
 
                 width: 45,
@@ -109,7 +173,9 @@ class NowBarHome extends StatelessWidget {
                 decoration: BoxDecoration(
 
                   borderRadius:
+
                       BorderRadius.circular(8),
+
 
                   color: Colors.grey,
 
@@ -123,7 +189,9 @@ class NowBarHome extends StatelessWidget {
                     "🎵",
 
                     style: TextStyle(
+
                       fontSize: 22,
+
                     ),
 
                   ),
@@ -138,16 +206,18 @@ class NowBarHome extends StatelessWidget {
 
 
 
-              // 曲情報
+
               const Expanded(
 
                 child: Column(
 
                   mainAxisAlignment:
+
                       MainAxisAlignment.center,
 
 
                   crossAxisAlignment:
+
                       CrossAxisAlignment.start,
 
 
@@ -159,6 +229,7 @@ class NowBarHome extends StatelessWidget {
                       "Blinding Lights",
 
                       overflow:
+
                           TextOverflow.ellipsis,
 
 
@@ -167,6 +238,7 @@ class NowBarHome extends StatelessWidget {
                         fontSize: 15,
 
                         fontWeight:
+
                             FontWeight.bold,
 
                       ),
@@ -184,12 +256,12 @@ class NowBarHome extends StatelessWidget {
                         fontSize: 12,
 
                         color:
+
                             Colors.white70,
 
                       ),
 
                     ),
-
 
                   ],
 
@@ -199,90 +271,76 @@ class NowBarHome extends StatelessWidget {
 
 
 
-              // 操作ボタン
-              Row(
 
-                children: [
+              IconButton(
 
+                padding: EdgeInsets.zero,
 
-                  IconButton(
+                constraints:
 
-                    padding:
-                        EdgeInsets.zero,
+                    const BoxConstraints(),
 
 
-                    constraints:
-                        const BoxConstraints(),
+                onPressed: () {},
 
 
-                    onPressed: () {},
+                icon: const Icon(
 
+                  Icons.skip_previous,
 
-                    icon:
-                        const Icon(
+                  size: 22,
 
-                          Icons.skip_previous,
+                ),
 
-                          size: 22,
-
-                        ),
-
-                  ),
+              ),
 
 
 
-                  IconButton(
 
-                    padding:
-                        EdgeInsets.zero,
+              IconButton(
 
+                padding: EdgeInsets.zero,
 
-                    constraints:
-                        const BoxConstraints(),
+                constraints:
 
-
-                    onPressed: () {},
+                    const BoxConstraints(),
 
 
-                    icon:
-                        const Icon(
-
-                          Icons.play_circle_fill,
-
-                          size: 32,
-
-                        ),
-
-                  ),
+                onPressed: () {},
 
 
+                icon: const Icon(
 
-                  IconButton(
+                  Icons.play_circle_fill,
 
-                    padding:
-                        EdgeInsets.zero,
+                  size: 32,
 
+                ),
 
-                    constraints:
-                        const BoxConstraints(),
-
-
-                    onPressed: () {},
+              ),
 
 
-                    icon:
-                        const Icon(
-
-                          Icons.skip_next,
-
-                          size: 22,
-
-                        ),
-
-                  ),
 
 
-                ],
+              IconButton(
+
+                padding: EdgeInsets.zero,
+
+                constraints:
+
+                    const BoxConstraints(),
+
+
+                onPressed: () {},
+
+
+                icon: const Icon(
+
+                  Icons.skip_next,
+
+                  size: 22,
+
+                ),
 
               ),
 
