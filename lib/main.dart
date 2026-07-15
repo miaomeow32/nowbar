@@ -4,14 +4,12 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // WindowManagerの準備
   await windowManager.ensureInitialized();
 
-  // ウィンドウ設定
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(700, 120),
-    minimumSize: Size(700, 120),
-    maximumSize: Size(700, 120),
+  const windowOptions = WindowOptions(
+    size: Size(520, 64),
+    minimumSize: Size(520, 64),
+    maximumSize: Size(520, 64),
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
@@ -22,7 +20,6 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
 
-    // 常に前面表示
     await windowManager.setAlwaysOnTop(true);
   });
 
@@ -37,10 +34,11 @@ class NowBarApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'NowBar',
+
       theme: ThemeData(
         brightness: Brightness.dark,
       ),
+
       home: const NowBarHome(),
     );
   }
@@ -50,40 +48,259 @@ class NowBarApp extends StatelessWidget {
 class NowBarHome extends StatelessWidget {
   const NowBarHome({super.key});
 
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+
       backgroundColor: Colors.transparent,
 
-      body: Center(
+      body: GestureDetector(
+
+        onPanStart: (_) {
+          windowManager.startDragging();
+        },
+
+
         child: Container(
-          width: 700,
-          height: 120,
+
+          margin: const EdgeInsets.all(5),
 
           decoration: BoxDecoration(
+
             color: const Color(0xff181818),
 
-            borderRadius: BorderRadius.circular(20),
+            borderRadius:
+                BorderRadius.circular(18),
+
 
             boxShadow: const [
+
               BoxShadow(
-                blurRadius: 20,
+
+                blurRadius: 15,
+
                 color: Colors.black54,
-              )
+
+              ),
+
             ],
+
           ),
 
-          child: const Center(
-            child: Text(
-              '🎵 NowBar',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+
+          child: Row(
+
+            children: [
+
+              const SizedBox(width: 8),
+
+
+
+              // ジャケット
+              Container(
+
+                width: 45,
+
+                height: 45,
+
+
+                decoration: BoxDecoration(
+
+                  borderRadius:
+                      BorderRadius.circular(8),
+
+                  color: Colors.grey,
+
+                ),
+
+
+                child: const Center(
+
+                  child: Text(
+
+                    "🎵",
+
+                    style: TextStyle(
+                      fontSize: 22,
+                    ),
+
+                  ),
+
+                ),
+
               ),
-            ),
+
+
+
+              const SizedBox(width: 10),
+
+
+
+              // 曲情報
+              const Expanded(
+
+                child: Column(
+
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
+
+
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+
+                  children: [
+
+
+                    Text(
+
+                      "Blinding Lights",
+
+                      overflow:
+                          TextOverflow.ellipsis,
+
+
+                      style: TextStyle(
+
+                        fontSize: 15,
+
+                        fontWeight:
+                            FontWeight.bold,
+
+                      ),
+
+                    ),
+
+
+
+                    Text(
+
+                      "The Weeknd",
+
+                      style: TextStyle(
+
+                        fontSize: 12,
+
+                        color:
+                            Colors.white70,
+
+                      ),
+
+                    ),
+
+
+                  ],
+
+                ),
+
+              ),
+
+
+
+              // 操作ボタン
+              Row(
+
+                children: [
+
+
+                  IconButton(
+
+                    padding:
+                        EdgeInsets.zero,
+
+
+                    constraints:
+                        const BoxConstraints(),
+
+
+                    onPressed: () {},
+
+
+                    icon:
+                        const Icon(
+
+                          Icons.skip_previous,
+
+                          size: 22,
+
+                        ),
+
+                  ),
+
+
+
+                  IconButton(
+
+                    padding:
+                        EdgeInsets.zero,
+
+
+                    constraints:
+                        const BoxConstraints(),
+
+
+                    onPressed: () {},
+
+
+                    icon:
+                        const Icon(
+
+                          Icons.play_circle_fill,
+
+                          size: 32,
+
+                        ),
+
+                  ),
+
+
+
+                  IconButton(
+
+                    padding:
+                        EdgeInsets.zero,
+
+
+                    constraints:
+                        const BoxConstraints(),
+
+
+                    onPressed: () {},
+
+
+                    icon:
+                        const Icon(
+
+                          Icons.skip_next,
+
+                          size: 22,
+
+                        ),
+
+                  ),
+
+
+                ],
+
+              ),
+
+
+
+              const SizedBox(width: 8),
+
+
+            ],
+
           ),
+
         ),
+
       ),
+
     );
+
   }
+
 }
