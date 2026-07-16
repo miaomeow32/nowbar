@@ -208,26 +208,45 @@ SongInfo get song => songs[currentSong];
 
                 SizedBox(
 
-  width: 50,
+  width: 80,
 
-  height: 50,
+  height: 80,
 
-  child: ClipRRect(
+  child: AnimatedSwitcher(
 
-                    borderRadius: BorderRadius.circular(8),
+    duration: const Duration(milliseconds: 300),
 
+    transitionBuilder: (child, animation) {
 
-                    child: Image.asset(
+      return FadeTransition(
 
-                      song.imagePath,
+        opacity: animation,
 
-                      fit: BoxFit.cover,
+        child: child,
 
-                    ),
+      );
 
-                  ),
+    },
 
-                ),
+    child: ClipRRect(
+
+      key: ValueKey(song.imagePath),
+
+      borderRadius: BorderRadius.circular(8),
+
+      child: Image.asset(
+
+        song.imagePath,
+
+        fit: BoxFit.cover,
+
+      ),
+
+    ),
+
+  ),
+
+),
 
 
 
@@ -247,40 +266,113 @@ SongInfo get song => songs[currentSong];
                     children: [
 
 
-                      Text(
+                      AnimatedSwitcher(
 
-                        song.title,
+  duration: const Duration(milliseconds: 300),
 
-                        overflow: TextOverflow.ellipsis,
+  layoutBuilder: (currentChild, previousChildren) {
+
+    return Stack(
+
+      alignment: Alignment.centerLeft,
+
+      children: [
+
+        ...previousChildren,
+
+        if (currentChild != null) currentChild,
+
+      ],
+
+    );
+
+  },
+
+  transitionBuilder: (child, animation) {
+
+    return FadeTransition(
+
+      opacity: animation,
+
+      child: child,
+
+    );
+
+  },
+
+  child: Text(
+
+    song.title,
+
+    key: ValueKey(song.title),
+
+    overflow: TextOverflow.ellipsis,
+
+    style: const TextStyle(
+
+      fontSize: 15,
+
+      fontWeight: FontWeight.bold,
+
+    ),
+
+  ),
+
+),
 
 
-                        style: const TextStyle(
 
-                          fontSize: 15,
+                      AnimatedSwitcher(
 
-                          fontWeight: FontWeight.bold,
+  duration: const Duration(milliseconds: 300),
 
-                        ),
+  layoutBuilder: (currentChild, previousChildren) {
 
-                      ),
+    return Stack(
 
+      alignment: Alignment.centerLeft,
 
+      children: [
 
-                      Text(
+        ...previousChildren,
 
-                        song.artist,
+        if (currentChild != null) currentChild,
 
+      ],
 
-                        style: const TextStyle(
+    );
 
-                          fontSize: 12,
+  },
 
-                          color: Colors.white70,
+  transitionBuilder: (child, animation) {
 
-                        ),
+    return FadeTransition(
 
-                      ),
+      opacity: animation,
 
+      child: child,
+
+    );
+
+  },
+
+  child: Text(
+
+    song.artist,
+
+    key: ValueKey(song.artist),
+
+    style: const TextStyle(
+
+      fontSize: 12,
+
+      color: Colors.white70,
+
+    ),
+
+  ),
+
+),
 
                     ],
 
