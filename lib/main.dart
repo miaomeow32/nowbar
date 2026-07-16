@@ -95,7 +95,26 @@ class NowBarApp extends StatelessWidget {
 
 }
 
+class SongInfo {
 
+  final String title;
+
+  final String artist;
+
+  final String imagePath;
+
+
+  const SongInfo({
+
+    required this.title,
+
+    required this.artist,
+
+    required this.imagePath,
+
+  });
+
+}
 
 class NowBarHome extends StatefulWidget {
 
@@ -110,6 +129,38 @@ class NowBarHome extends StatefulWidget {
 class _NowBarHomeState extends State<NowBarHome> {
 
   bool isPlaying = false;
+
+
+  final List<SongInfo> songs = [
+
+  const SongInfo(
+
+    title: "Blinding Lights",
+
+    artist: "The Weeknd",
+
+    imagePath: "assets/jacket.png",
+
+  ),
+
+
+  const SongInfo(
+
+    title: "Starboy",
+
+    artist: "The Weeknd",
+
+    imagePath: "assets/jacket2.png",
+
+  ),
+
+];
+
+
+int currentSong = 0;
+
+
+SongInfo get song => songs[currentSong];
 
 
   @override
@@ -141,11 +192,7 @@ class _NowBarHomeState extends State<NowBarHome> {
 
               color: const Color(0xff181818),
 
-
-              borderRadius:
-
-                  BorderRadius.circular(8),
-
+              borderRadius: BorderRadius.circular(8),
 
             ),
 
@@ -159,37 +206,26 @@ class _NowBarHomeState extends State<NowBarHome> {
 
 
 
-                Container(
+                SizedBox(
 
-                  width: 50,
+  width: 50,
 
-                  height: 50,
+  height: 50,
+
+  child: ClipRRect(
+
+                    borderRadius: BorderRadius.circular(8),
 
 
-                  decoration: BoxDecoration(
+                    child: Image.asset(
 
-                    color: Colors.grey,
+                      song.imagePath,
 
-                    borderRadius:
+                      fit: BoxFit.cover,
 
-                        BorderRadius.circular(8),
+                    ),
 
                   ),
-
-
-                  child: ClipRRect(
-
-  borderRadius: BorderRadius.circular(8),
-
-  child: Image.asset(
-
-    "assets/jacket.png",
-
-    fit: BoxFit.cover,
-
-  ),
-
-),
 
                 ),
 
@@ -199,18 +235,13 @@ class _NowBarHomeState extends State<NowBarHome> {
 
 
 
-                const Expanded(
+                Expanded(
 
                   child: Column(
 
-                    mainAxisAlignment:
+                    mainAxisAlignment: MainAxisAlignment.center,
 
-                        MainAxisAlignment.center,
-
-
-                    crossAxisAlignment:
-
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
 
                     children: [
@@ -218,20 +249,16 @@ class _NowBarHomeState extends State<NowBarHome> {
 
                       Text(
 
-                        "Blinding Lights",
+                        song.title,
 
-                        overflow:
-
-                            TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
 
 
-                        style: TextStyle(
+                        style: const TextStyle(
 
                           fontSize: 15,
 
-                          fontWeight:
-
-                              FontWeight.bold,
+                          fontWeight: FontWeight.bold,
 
                         ),
 
@@ -241,19 +268,19 @@ class _NowBarHomeState extends State<NowBarHome> {
 
                       Text(
 
-                        "The Weeknd",
+                        song.artist,
 
-                        style: TextStyle(
+
+                        style: const TextStyle(
 
                           fontSize: 12,
 
-                          color:
-
-                              Colors.white70,
+                          color: Colors.white70,
 
                         ),
 
                       ),
+
 
                     ],
 
@@ -267,9 +294,7 @@ class _NowBarHomeState extends State<NowBarHome> {
 
                   padding: EdgeInsets.zero,
 
-                  constraints:
-
-                      const BoxConstraints(),
+                  constraints: const BoxConstraints(),
 
 
                   onPressed: () {},
@@ -289,32 +314,36 @@ class _NowBarHomeState extends State<NowBarHome> {
 
                 IconButton(
 
-  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
 
-  constraints:
-      const BoxConstraints(),
+                  constraints: const BoxConstraints(),
 
-  onPressed: () {
 
-    setState(() {
+                  onPressed: () {
 
-      isPlaying = !isPlaying;
+                    setState(() {
 
-    });
+                      isPlaying = !isPlaying;
 
-  },
+                    });
 
-  icon: Icon(
+                  },
 
-    isPlaying
-        ? Icons.pause_circle
-        : Icons.play_circle_fill,
 
-    size: 32,
+                  icon: Icon(
 
-  ),
+                    isPlaying
 
-),
+                        ? Icons.pause_circle
+
+                        : Icons.play_circle_fill,
+
+
+                    size: 32,
+
+                  ),
+
+                ),
 
 
 
@@ -322,12 +351,24 @@ class _NowBarHomeState extends State<NowBarHome> {
 
                   padding: EdgeInsets.zero,
 
-                  constraints:
-
-                      const BoxConstraints(),
+                  constraints: const BoxConstraints(),
 
 
-                  onPressed: () {},
+                  onPressed: () {
+
+  setState(() {
+
+    currentSong++;
+
+    if (currentSong >= songs.length) {
+
+      currentSong = 0;
+
+    }
+
+  });
+
+},
 
 
                   icon: const Icon(
@@ -343,6 +384,7 @@ class _NowBarHomeState extends State<NowBarHome> {
 
 
                 const SizedBox(width: 8),
+
 
               ],
 
