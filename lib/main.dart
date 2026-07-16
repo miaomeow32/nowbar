@@ -292,23 +292,73 @@ SongInfo get song => songs[currentSong];
 
                 IconButton(
 
-                  padding: EdgeInsets.zero,
+  padding: EdgeInsets.zero,
 
-                  constraints: const BoxConstraints(),
-
-
-                  onPressed: () {},
+  constraints: const BoxConstraints(),
 
 
-                  icon: const Icon(
+  onPressed: () {
 
-                    Icons.skip_previous,
+    setState(() {
 
-                    size: 22,
+      currentSong--;
 
-                  ),
 
-                ),
+      if (currentSong < 0) {
+
+        currentSong = songs.length - 1;
+
+      }
+
+    });
+
+  },
+
+
+  icon: const Icon(
+
+    Icons.skip_previous,
+
+    size: 22,
+
+  ),
+
+),
+
+
+
+IconButton(
+
+  padding: EdgeInsets.zero,
+
+  constraints: const BoxConstraints(),
+
+
+  onPressed: () {
+
+    setState(() {
+
+      isPlaying = !isPlaying;
+
+    });
+
+  },
+
+
+  icon: Icon(
+
+    isPlaying
+
+        ? Icons.pause_circle
+
+        : Icons.play_circle_fill,
+
+
+    size: 32,
+
+  ),
+
+),
 
 
 
@@ -317,59 +367,22 @@ SongInfo get song => songs[currentSong];
                   padding: EdgeInsets.zero,
 
                   constraints: const BoxConstraints(),
-
 
                   onPressed: () {
 
                     setState(() {
 
-                      isPlaying = !isPlaying;
+                      currentSong++;
+
+                      if (currentSong >= songs.length) {
+
+                        currentSong = 0;
+
+                      }
 
                     });
 
                   },
-
-
-                  icon: Icon(
-
-                    isPlaying
-
-                        ? Icons.pause_circle
-
-                        : Icons.play_circle_fill,
-
-
-                    size: 32,
-
-                  ),
-
-                ),
-
-
-
-                IconButton(
-
-                  padding: EdgeInsets.zero,
-
-                  constraints: const BoxConstraints(),
-
-
-                  onPressed: () {
-
-  setState(() {
-
-    currentSong++;
-
-    if (currentSong >= songs.length) {
-
-      currentSong = 0;
-
-    }
-
-  });
-
-},
-
 
                   icon: const Icon(
 
@@ -381,10 +394,7 @@ SongInfo get song => songs[currentSong];
 
                 ),
 
-
-
                 const SizedBox(width: 8),
-
 
               ],
 
