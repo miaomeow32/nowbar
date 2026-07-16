@@ -97,9 +97,19 @@ class NowBarApp extends StatelessWidget {
 
 
 
-class NowBarHome extends StatelessWidget {
+class NowBarHome extends StatefulWidget {
 
   const NowBarHome({super.key});
+
+  @override
+  State<NowBarHome> createState() => _NowBarHomeState();
+
+}
+
+
+class _NowBarHomeState extends State<NowBarHome> {
+
+  bool isPlaying = false;
 
 
   @override
@@ -279,25 +289,32 @@ class NowBarHome extends StatelessWidget {
 
                 IconButton(
 
-                  padding: EdgeInsets.zero,
+  padding: EdgeInsets.zero,
 
-                  constraints:
+  constraints:
+      const BoxConstraints(),
 
-                      const BoxConstraints(),
+  onPressed: () {
 
+    setState(() {
 
-                  onPressed: () {},
+      isPlaying = !isPlaying;
 
+    });
 
-                  icon: const Icon(
+  },
 
-                    Icons.play_circle_fill,
+  icon: Icon(
 
-                    size: 32,
+    isPlaying
+        ? Icons.pause_circle
+        : Icons.play_circle_fill,
 
-                  ),
+    size: 32,
 
-                ),
+  ),
+
+),
 
 
 
