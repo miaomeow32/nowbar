@@ -7,19 +7,16 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-
   await windowManager.ensureInitialized();
 
 
   const windowOptions = WindowOptions(
 
-    size: Size(520, 64),
+    size: Size(520, 55),
 
-    minimumSize: Size(520, 64),
+    minimumSize: Size(520, 55),
 
-    maximumSize: Size(520, 64),
-
-    center: true,
+    maximumSize: Size(520, 55),
 
     backgroundColor: Colors.transparent,
 
@@ -31,7 +28,9 @@ void main() async {
 
 
   await windowManager.waitUntilReadyToShow(
+
     windowOptions,
+
     () async {
 
       await windowManager.show();
@@ -41,21 +40,18 @@ void main() async {
       await windowManager.setAlwaysOnTop(true);
 
     },
+
   );
 
 
-  // bitsdojo_window設定
   doWhenWindowReady(() {
 
     final win = appWindow;
 
 
-    win.minSize = const Size(520, 64);
+    win.minSize = const Size(520, 55);
 
-    win.size = const Size(520, 64);
-
-
-    win.alignment = Alignment.center;
+    win.size = const Size(520, 55);
 
 
     win.show();
@@ -86,6 +82,8 @@ class NowBarApp extends StatelessWidget {
 
         brightness: Brightness.dark,
 
+        scaffoldBackgroundColor: Colors.transparent,
+
       ),
 
 
@@ -99,11 +97,9 @@ class NowBarApp extends StatelessWidget {
 
 
 
-
 class NowBarHome extends StatelessWidget {
 
   const NowBarHome({super.key});
-
 
 
   @override
@@ -115,241 +111,225 @@ class NowBarHome extends StatelessWidget {
       backgroundColor: Colors.transparent,
 
 
-      body: GestureDetector(
+      body: ClipRRect(
 
-        onPanStart: (_) {
-
-          windowManager.startDragging();
-
-        },
+        borderRadius: BorderRadius.circular(8),
 
 
-        child: Container(
+        child: GestureDetector(
 
-          margin: const EdgeInsets.all(0),
+          onPanStart: (_) {
 
+            windowManager.startDragging();
 
-          decoration: BoxDecoration(
-
-            color: const Color(0xff181818),
-
-
-            borderRadius:
-
-                BorderRadius.circular(12),
+          },
 
 
-            boxShadow: const [
+          child: Container(
 
-              BoxShadow(
+            decoration: BoxDecoration(
 
-                blurRadius: 15,
-
-                color: Colors.black54,
-
-              ),
-
-            ],
-
-          ),
+              color: const Color(0xff181818),
 
 
-          child: Row(
+              borderRadius:
 
-            children: [
+                  BorderRadius.circular(8),
 
 
-              const SizedBox(width: 8),
+            ),
+
+
+            child: Row(
+
+              children: [
+
+
+                const SizedBox(width: 8),
 
 
 
-              Container(
+                Container(
 
-                width: 45,
+                  width: 50,
 
-                height: 45,
-
-
-                decoration: BoxDecoration(
-
-                  borderRadius:
-
-                      BorderRadius.circular(8),
+                  height: 50,
 
 
-                  color: Colors.grey,
+                  decoration: BoxDecoration(
+
+                    color: Colors.grey,
+
+                    borderRadius:
+
+                        BorderRadius.circular(8),
+
+                  ),
+
+
+                  child: ClipRRect(
+
+  borderRadius: BorderRadius.circular(8),
+
+  child: Image.asset(
+
+    "assets/jacket.png",
+
+    fit: BoxFit.cover,
+
+  ),
+
+),
 
                 ),
 
 
-                child: const Center(
 
-                  child: Text(
+                const SizedBox(width: 10),
 
-                    "🎵",
 
-                    style: TextStyle(
 
-                      fontSize: 22,
+                const Expanded(
 
-                    ),
+                  child: Column(
+
+                    mainAxisAlignment:
+
+                        MainAxisAlignment.center,
+
+
+                    crossAxisAlignment:
+
+                        CrossAxisAlignment.start,
+
+
+                    children: [
+
+
+                      Text(
+
+                        "Blinding Lights",
+
+                        overflow:
+
+                            TextOverflow.ellipsis,
+
+
+                        style: TextStyle(
+
+                          fontSize: 15,
+
+                          fontWeight:
+
+                              FontWeight.bold,
+
+                        ),
+
+                      ),
+
+
+
+                      Text(
+
+                        "The Weeknd",
+
+                        style: TextStyle(
+
+                          fontSize: 12,
+
+                          color:
+
+                              Colors.white70,
+
+                        ),
+
+                      ),
+
+                    ],
 
                   ),
 
                 ),
 
-              ),
 
 
+                IconButton(
 
-              const SizedBox(width: 10),
+                  padding: EdgeInsets.zero,
 
+                  constraints:
 
-
-
-              const Expanded(
-
-                child: Column(
-
-                  mainAxisAlignment:
-
-                      MainAxisAlignment.center,
+                      const BoxConstraints(),
 
 
-                  crossAxisAlignment:
-
-                      CrossAxisAlignment.start,
+                  onPressed: () {},
 
 
-                  children: [
+                  icon: const Icon(
 
+                    Icons.skip_previous,
 
-                    Text(
+                    size: 22,
 
-                      "Blinding Lights",
-
-                      overflow:
-
-                          TextOverflow.ellipsis,
-
-
-                      style: TextStyle(
-
-                        fontSize: 15,
-
-                        fontWeight:
-
-                            FontWeight.bold,
-
-                      ),
-
-                    ),
-
-
-
-                    Text(
-
-                      "The Weeknd",
-
-                      style: TextStyle(
-
-                        fontSize: 12,
-
-                        color:
-
-                            Colors.white70,
-
-                      ),
-
-                    ),
-
-                  ],
+                  ),
 
                 ),
 
-              ),
 
 
+                IconButton(
+
+                  padding: EdgeInsets.zero,
+
+                  constraints:
+
+                      const BoxConstraints(),
 
 
-              IconButton(
-
-                padding: EdgeInsets.zero,
-
-                constraints:
-
-                    const BoxConstraints(),
+                  onPressed: () {},
 
 
-                onPressed: () {},
+                  icon: const Icon(
 
+                    Icons.play_circle_fill,
 
-                icon: const Icon(
+                    size: 32,
 
-                  Icons.skip_previous,
-
-                  size: 22,
-
-                ),
-
-              ),
-
-
-
-
-              IconButton(
-
-                padding: EdgeInsets.zero,
-
-                constraints:
-
-                    const BoxConstraints(),
-
-
-                onPressed: () {},
-
-
-                icon: const Icon(
-
-                  Icons.play_circle_fill,
-
-                  size: 32,
+                  ),
 
                 ),
 
-              ),
 
 
+                IconButton(
+
+                  padding: EdgeInsets.zero,
+
+                  constraints:
+
+                      const BoxConstraints(),
 
 
-              IconButton(
-
-                padding: EdgeInsets.zero,
-
-                constraints:
-
-                    const BoxConstraints(),
+                  onPressed: () {},
 
 
-                onPressed: () {},
+                  icon: const Icon(
 
+                    Icons.skip_next,
 
-                icon: const Icon(
+                    size: 22,
 
-                  Icons.skip_next,
-
-                  size: 22,
+                  ),
 
                 ),
 
-              ),
 
 
+                const SizedBox(width: 8),
 
-              const SizedBox(width: 8),
+              ],
 
-
-            ],
+            ),
 
           ),
 
