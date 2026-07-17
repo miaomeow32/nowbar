@@ -450,68 +450,212 @@ class _NowBarHomeState
 
 
 
-                      Text(
+                      AnimatedSwitcher(
 
-                        player.title.isEmpty
-
-                            ?
-
-                        "No Music"
-
-                            :
-
-                        player.title,
+  duration:
+  const Duration(milliseconds:300),
 
 
-                        maxLines:1,
+  layoutBuilder:
+      (currentChild, previousChildren){
+
+    return Stack(
+
+      alignment:
+      Alignment.centerLeft,
 
 
-                        overflow:
-                        TextOverflow.ellipsis,
+      children:[
+
+        ...previousChildren,
+
+        if(currentChild != null)
+          currentChild,
+
+      ],
+
+    );
+
+  },
 
 
-                        style:
+  transitionBuilder:
+      (child, animation){
 
-                        const TextStyle(
+    return FadeTransition(
 
-                          fontSize:13,
-
-                          fontWeight:
-                          FontWeight.bold,
-
-                        ),
-
-                      ),
+      opacity: animation,
 
 
+      child:
+
+      SlideTransition(
+
+        position:
+
+        Tween<Offset>(
+
+          begin:
+          const Offset(0,0.08),
+
+          end:
+          Offset.zero,
+
+        ).animate(animation),
+
+
+        child: child,
+
+      ),
+
+    );
+
+  },
+
+
+  child:
+
+  Text(
+
+    player.title.isEmpty
+
+        ?
+
+    "No Music"
+
+        :
+
+    player.title,
+
+
+    key:
+
+    ValueKey(player.title),
+
+
+    maxLines:1,
+
+
+    overflow:
+    TextOverflow.ellipsis,
+
+
+    style:
+
+    const TextStyle(
+
+      fontSize:13,
+
+      fontWeight:
+      FontWeight.bold,
+
+    ),
+
+  ),
+
+),
 
 
 
 
-                      Text(
-
-                        player.artist,
 
 
-                        maxLines:1,
+AnimatedSwitcher(
+
+  duration:
+  const Duration(milliseconds:300),
 
 
-                        overflow:
-                        TextOverflow.ellipsis,
+  layoutBuilder:
+      (currentChild, previousChildren){
+
+    return Stack(
+
+      alignment:
+      Alignment.centerLeft,
 
 
-                        style:
+      children:[
 
-                        const TextStyle(
+        ...previousChildren,
 
-                          fontSize:10,
+        if(currentChild != null)
+          currentChild,
 
-                          color:
-                          Colors.white70,
+      ],
 
-                        ),
+    );
 
-                      ),
+  },
+
+
+  transitionBuilder:
+      (child, animation){
+
+    return FadeTransition(
+
+      opacity: animation,
+
+
+      child:
+
+      SlideTransition(
+
+        position:
+
+        Tween<Offset>(
+
+          begin:
+          const Offset(0,0.08),
+
+          end:
+          Offset.zero,
+
+        ).animate(animation),
+
+
+        child: child,
+
+      ),
+
+    );
+
+  },
+
+
+  child:
+
+  Text(
+
+    player.artist,
+
+
+    key:
+
+    ValueKey(player.artist),
+
+
+    maxLines:1,
+
+
+    overflow:
+    TextOverflow.ellipsis,
+
+
+    style:
+
+    const TextStyle(
+
+      fontSize:10,
+
+      color:
+      Colors.white70,
+
+    ),
+
+  ),
+
+),
 
 
 
