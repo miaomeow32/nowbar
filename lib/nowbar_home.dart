@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:image/image.dart' as img;
 import 'package:window_manager/window_manager.dart';
 
 import 'player_data.dart';
@@ -42,6 +43,16 @@ class _NowBarHomeState
 
 
 
+  // ジャケットから取得した色
+
+  Color themeColor =
+    const Color(0xff2196f3);
+
+
+
+
+
+
 
 
   @override
@@ -61,7 +72,7 @@ class _NowBarHomeState
 
 
           final file =
-          File(player.image);
+              File(player.image);
 
 
 
@@ -69,7 +80,7 @@ class _NowBarHomeState
 
 
             final modified =
-            await file.lastModified();
+                await file.lastModified();
 
 
 
@@ -83,6 +94,11 @@ class _NowBarHomeState
 
               imageVersion++;
 
+
+
+              // 色更新
+
+              updateThemeColor();
 
 
 
@@ -133,28 +149,250 @@ class _NowBarHomeState
 
 
 
-  String timeText(double sec){
-
-
-    int s =
-        sec.floor();
-
-
-    int m =
-        s ~/ 60;
-
-
-    int ss =
-        s % 60;
 
 
 
-    return
-        "$m:${ss.toString().padLeft(2,'0')}";
+  // =========================
+  // ジャケット色取得
+  // =========================
+
+  Future<void> updateThemeColor() async {
+
+
+    try{
+
+
+      final file =
+          File(player.image);
+
+
+
+      if(!await file.exists())
+        return;
+
+
+
+      final bytes =
+          await file.readAsBytes();
+
+
+
+      final image =
+          img.decodeImage(bytes);
+
+
+
+      if(image == null)
+        return;
+
+
+
+      Map<String,int> colors = {};
+
+
+
+      for(
+        int y = 0;
+        y < image.height;
+        y += 10
+      ){
+
+
+        for(
+          int x = 0;
+          x < image.width;
+          x += 10
+        ){
+
+
+          final pixel =
+              image.getPixel(x,y);
+
+
+
+          int r =
+              pixel.r.toInt();
+
+
+          int g =
+              pixel.g.toInt();
+
+
+          int b =
+              pixel.b.toInt();
+
+
+
+          int brightness =
+              (r + g + b) ~/ 3;
+
+
+
+          // 黒・白を除外
+
+          if(
+            brightness < 35 ||
+            brightness > 230
+          ){
+
+            continue;
+
+          }
+
+
+
+          // 近い色をまとめる
+
+          r =
+          (r ~/ 20) * 20;
+
+
+          g =
+          (g ~/ 20) * 20;
+
+
+          b =
+          (b ~/ 20) * 20;
+
+
+
+          String key =
+              "$r,$g,$b";
+
+
+
+          colors[key] =
+              (colors[key] ?? 0) + 1;
+
+
+        }
+
+      }
+
+
+
+      if(colors.isEmpty)
+        return;
+
+
+
+      String result =
+          colors.entries
+              .reduce(
+                (a,b)=>
+                a.value > b.value
+                    ?
+                a
+                    :
+                b,
+              )
+              .key;
+
+
+
+      List<int> rgb =
+          result
+              .split(",")
+              .map(int.parse)
+              .toList();
+
+
+
+            Color newColor =
+          Color.fromARGB(
+            255,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+          );
+
+
+      // =========================
+      // 文字用カラー補正
+      // =========================
+
+      double brightness =
+          (newColor.red +
+          newColor.green +
+          newColor.blue) / 3;
+
+
+
+      double r =
+          newColor.red.toDouble();
+
+      double g =
+          newColor.green.toDouble();
+
+      double b =
+          newColor.blue.toDouble();
+
+
+
+      // 暗い色なら明るくする
+
+      if(brightness < 100){
+
+        r += 90;
+        g += 90;
+        b += 90;
+
+      }
+
+
+      // 明るすぎる色は少し暗く
+
+      if(brightness > 220){
+
+        r *= 0.75;
+        g *= 0.75;
+        b *= 0.75;
+
+      }
+
+
+
+      newColor =
+          Color.fromARGB(
+
+            255,
+
+            r.clamp(0,255).toInt(),
+
+            g.clamp(0,255).toInt(),
+
+            b.clamp(0,255).toInt(),
+
+          );
+
+
+
+      if(mounted){
+
+        setState((){
+
+          themeColor =
+              newColor;
+
+        });
+
+      }
+
+
+    }
+    catch(e){
+
+
+      debugPrint(
+        "Theme color error : $e",
+      );
+
+
+    }
 
   }
     // =========================
-  // 背景用ジャケット画像
+  // 背景ジャケット
   // =========================
 
   Widget backgroundImage(){
@@ -178,7 +416,7 @@ class _NowBarHomeState
           key:
 
           ValueKey(
-            "bg_${player.image}_$imageVersion",
+            "background_$imageVersion",
           ),
 
 
@@ -195,7 +433,6 @@ class _NowBarHomeState
     }
 
 
-
     return const SizedBox();
 
   }
@@ -206,8 +443,10 @@ class _NowBarHomeState
 
 
 
+
+
   // =========================
-  // 左側ジャケット画像
+  // 左側ジャケット
   // =========================
 
   Widget albumImage(){
@@ -220,24 +459,7 @@ class _NowBarHomeState
 
 
       final file =
-      File(player.image);
-
-
-
-      int stamp = 0;
-
-
-
-      try{
-
-        stamp =
-            file.lastModifiedSync()
-                .millisecondsSinceEpoch;
-
-      }
-      catch(_){}
-
-
+          File(player.image);
 
 
 
@@ -246,7 +468,7 @@ class _NowBarHomeState
         key:
 
         ValueKey(
-          "${file.path}_${stamp}_$imageVersion",
+          "${file.path}_$imageVersion",
         ),
 
 
@@ -259,25 +481,9 @@ class _NowBarHomeState
 
 
 
-        width:
-
-        45,
-
-
-
-        height:
-
-        45,
-
-
-
         fit:
 
         BoxFit.cover,
-
-
-
-        gaplessPlayback:false,
 
 
 
@@ -296,13 +502,10 @@ class _NowBarHomeState
 
         },
 
-
       );
 
 
     }
-
-
 
 
 
@@ -315,8 +518,50 @@ class _NowBarHomeState
 
 
   }
-    @override
+
+
+
+
+
+
+
+
+
+  String timeText(double sec){
+
+
+    int s =
+        sec.floor();
+
+
+
+    int m =
+        s ~/ 60;
+
+
+
+    int ss =
+        s % 60;
+
+
+
+    return
+        "$m:${ss.toString().padLeft(2,'0')}";
+
+
+  }
+
+
+
+
+
+
+
+
+
+  @override
   Widget build(BuildContext context){
+
 
 
     double position =
@@ -325,16 +570,22 @@ class _NowBarHomeState
 
 
     double progress =
+
         player.duration <= 0
+
             ?
+
         0
+
             :
+
         position / player.duration;
 
 
 
     progress =
         progress.clamp(0,1);
+
 
 
 
@@ -348,10 +599,10 @@ class _NowBarHomeState
 
       body:
 
-
       ClipRRect(
 
         borderRadius:
+
         BorderRadius.circular(8),
 
 
@@ -378,9 +629,7 @@ class _NowBarHomeState
 
 
 
-              // =====================
-              // 背景ジャケット
-              // =====================
+              // 背景画像
 
               backgroundImage(),
 
@@ -388,45 +637,35 @@ class _NowBarHomeState
 
 
 
-              // =====================
-              // ぼかし + 暗幕
-              // =====================
+
+              // ぼかし
 
               Positioned.fill(
 
                 child:
 
-                Container(
+                BackdropFilter(
 
-                  color:
+                  filter:
 
-                  Colors.black.withOpacity(
-                    0.35,
+                  ImageFilter.blur(
+
+                    sigmaX:8,
+
+                    sigmaY:8,
+
                   ),
+
+
 
                   child:
 
-                  BackdropFilter(
+                  Container(
 
-                    filter:
+                    color:
 
-                    ImageFilter.blur(
-
-                      sigmaX:10,
-
-                      sigmaY:10,
-
-                    ),
-
-
-                    child:
-
-                    Container(
-
-                      color:
-
-                      Colors.transparent,
-
+                    Colors.black.withOpacity(
+                      0.35,
                     ),
 
                   ),
@@ -439,33 +678,41 @@ class _NowBarHomeState
 
 
 
-              // =====================
-              // 元のUI
-              // =====================
+
+              // 暗幕
+
+              Positioned.fill(
+
+                child:
+
+                Container(
+
+                  color:
+
+                  Colors.black.withOpacity(
+                    0.25,
+                  ),
+
+                ),
+
+              ),
+
+
+
+
+
+
+              // メインUI
 
               Container(
 
                 padding:
 
                 const EdgeInsets.symmetric(
+
                   horizontal:8,
-                ),
-
-
-
-                decoration:
-
-                BoxDecoration(
-
-                  borderRadius:
-
-                  BorderRadius.circular(8),
 
                 ),
-
-
-
-
                 child:
 
                 Row(
@@ -503,7 +750,9 @@ class _NowBarHomeState
 
 
 
-                    const SizedBox(width:8),
+                    const SizedBox(
+                      width:8,
+                    ),
 
 
 
@@ -531,110 +780,86 @@ class _NowBarHomeState
 
 
 
-                          AnimatedSwitcher(
+                          TweenAnimationBuilder<Color?>(
+  tween: ColorTween(
+    end: themeColor,
+  ),
+  duration: const Duration(
+    milliseconds: 600,
+  ),
 
-                            duration:
+  builder: (context, color, child){
 
-                            const Duration(
-                              milliseconds:300,
-                            ),
+    return Text(
 
-
-                            child:
-
-                            Text(
-
-                              player.title.isEmpty
-
-                                  ?
-
-                              "No Music"
-
-                                  :
-
-                              player.title,
+      player.title.isEmpty
+          ?
+      "No Music"
+          :
+      player.title,
 
 
-                              key:
+      maxLines:1,
 
-                              ValueKey(
-                                player.title,
-                              ),
-
-
-                              maxLines:1,
+      overflow:
+      TextOverflow.ellipsis,
 
 
-                              overflow:
+      style: TextStyle(
 
-                              TextOverflow.ellipsis,
+        fontSize:13,
+
+        fontWeight:
+        FontWeight.bold,
 
 
-                              style:
+        color:
+        color,
 
-                              const TextStyle(
+      ),
 
-                                fontSize:13,
+    );
 
-                                fontWeight:
-                                FontWeight.bold,
+  },
 
-                              ),
-
-                            ),
-
-                          ),
+),
 
 
 
 
 
+                          Text(
 
-                          AnimatedSwitcher(
-
-                            duration:
-
-                            const Duration(
-                              milliseconds:300,
-                            ),
+                            player.artist,
 
 
-                            child:
+                            maxLines:
 
-                            Text(
-
-                              player.artist,
+                            1,
 
 
-                              key:
+                            overflow:
 
-                              ValueKey(
-                                player.artist,
-                              ),
+                            TextOverflow.ellipsis,
 
 
-                              maxLines:1,
+                            style:
+
+                            TextStyle(
+
+                              fontSize:10,
 
 
-                              overflow:
+                              color:
 
-                              TextOverflow.ellipsis,
-
-
-                              style:
-
-                              const TextStyle(
-
-                                fontSize:10,
-
-                                color:
-                                Colors.white70,
-
+                              themeColor.withOpacity(
+                                0.75,
                               ),
 
                             ),
 
                           ),
+
 
 
 
@@ -653,11 +878,18 @@ class _NowBarHomeState
                                 LinearProgressIndicator(
 
                                   value:
+
                                   progress,
 
 
                                   minHeight:
+
                                   3,
+
+
+                                  color:
+
+                                  themeColor,
 
 
                                 ),
@@ -668,7 +900,9 @@ class _NowBarHomeState
 
 
 
-                              const SizedBox(width:5),
+                              const SizedBox(
+                                width:5,
+                              ),
 
 
 
@@ -685,12 +919,15 @@ class _NowBarHomeState
 
                                   fontSize:8,
 
+
                                   color:
-                                  Colors.white60,
+
+                                  Colors.white70,
 
                                 ),
 
                               ),
+
 
 
                             ],
@@ -710,14 +947,18 @@ class _NowBarHomeState
 
 
 
+
                     IconButton(
 
                       padding:
+
                       EdgeInsets.zero,
 
 
                       constraints:
+
                       const BoxConstraints(),
+
 
 
                       icon:
@@ -751,10 +992,12 @@ class _NowBarHomeState
                     IconButton(
 
                       padding:
+
                       EdgeInsets.zero,
 
 
                       constraints:
+
                       const BoxConstraints(),
 
 
@@ -776,6 +1019,12 @@ class _NowBarHomeState
 
                         size:28,
 
+
+                        color:
+
+                        themeColor,
+
+
                       ),
 
 
@@ -795,13 +1044,16 @@ class _NowBarHomeState
 
 
 
+
                     IconButton(
 
                       padding:
+
                       EdgeInsets.zero,
 
 
                       constraints:
+
                       const BoxConstraints(),
 
 
@@ -832,7 +1084,11 @@ class _NowBarHomeState
 
 
 
-                    const SizedBox(width:4),
+
+                    const SizedBox(
+                      width:4,
+                    ),
+
 
 
                   ],
@@ -851,6 +1107,24 @@ class _NowBarHomeState
 
     );
 
+
+  }
+
+
+
+
+
+
+
+
+  @override
+  void dispose(){
+
+
+    player.dispose();
+
+
+    super.dispose();
 
   }
 
