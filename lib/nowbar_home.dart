@@ -12,16 +12,19 @@ import 'player_data.dart';
 
 class NowBarHome extends StatefulWidget {
 
-  const NowBarHome({super.key});
+
+  const NowBarHome({
+    super.key,
+  });
+
 
 
   @override
   State<NowBarHome> createState()
       => _NowBarHomeState();
 
+
 }
-
-
 
 
 
@@ -31,8 +34,19 @@ class _NowBarHomeState
     extends State<NowBarHome> {
 
 
+
   final PlayerData player =
       PlayerData();
+
+
+
+  // =========================
+  // 表示用タイトル
+  // =========================
+
+  String displayedTitle = "";
+
+  String displayedArtist = "";
 
 
 
@@ -43,11 +57,12 @@ class _NowBarHomeState
 
 
 
-  // ジャケットから取得した色
-
   Color themeColor =
-    const Color(0xff2196f3);
+      const Color(0xff2196f3);
 
+
+
+  bool alwaysOnTop = false;
 
 
 
@@ -58,11 +73,13 @@ class _NowBarHomeState
   @override
   void initState(){
 
+
     super.initState();
 
 
 
     player.onUpdate = () async {
+
 
 
       if(player.image.isNotEmpty){
@@ -96,8 +113,6 @@ class _NowBarHomeState
 
 
 
-              // 色更新
-
               updateThemeColor();
 
 
@@ -106,6 +121,7 @@ class _NowBarHomeState
                   .instance
                   .imageCache
                   .clear();
+
 
 
               PaintingBinding
@@ -124,14 +140,29 @@ class _NowBarHomeState
         catch(_){}
 
 
+
       }
+
 
 
 
 
       if(mounted){
 
-        setState((){});
+
+        setState((){
+
+
+          displayedTitle =
+              player.title;
+
+
+          displayedArtist =
+              player.artist;
+
+
+        });
+
 
       }
 
@@ -140,7 +171,10 @@ class _NowBarHomeState
 
 
 
+
     player.start();
+
+
 
   }
 
@@ -153,6 +187,227 @@ class _NowBarHomeState
 
 
   // =========================
+  // 最前面切替
+  // =========================
+
+  Future<void> toggleAlwaysOnTop() async {
+
+
+    alwaysOnTop =
+        !alwaysOnTop;
+
+
+
+    await windowManager
+        .setAlwaysOnTop(
+          alwaysOnTop,
+        );
+
+
+
+    setState((){});
+
+
+  }
+
+
+
+
+
+
+
+
+  // =========================
+  // 右クリックメニュー
+  // =========================
+
+  void openContextMenu(
+
+    BuildContext context,
+
+    TapDownDetails detail,
+
+  ){
+
+
+
+    showMenu(
+
+
+      context:
+
+      context,
+
+
+
+      position:
+
+      RelativeRect.fromLTRB(
+
+
+        detail.globalPosition.dx,
+
+
+        detail.globalPosition.dy,
+
+
+        detail.globalPosition.dx,
+
+
+        detail.globalPosition.dy,
+
+
+      ),
+
+
+
+      items:[
+
+
+
+
+        PopupMenuItem(
+
+
+          child:
+
+
+          Row(
+
+
+            children:[
+
+
+
+              Icon(
+
+                alwaysOnTop
+
+                ?
+
+                Icons.push_pin
+
+                :
+
+                Icons.push_pin_outlined,
+
+
+              ),
+
+
+
+
+              const SizedBox(
+
+                width:8,
+
+              ),
+
+
+
+
+              Text(
+
+
+                alwaysOnTop
+
+                ?
+
+                "最前面OFF"
+
+                :
+
+                "最前面ON",
+
+
+              ),
+
+
+
+            ],
+
+
+          ),
+
+
+
+          onTap:(){
+
+
+            toggleAlwaysOnTop();
+
+
+          },
+
+
+        ),
+
+
+
+
+
+
+        const PopupMenuItem(
+
+
+          child:
+
+
+          Row(
+
+
+            children:[
+
+
+
+              Icon(
+
+                Icons.volume_up,
+
+              ),
+
+
+
+
+              SizedBox(
+
+                width:8,
+
+              ),
+
+
+
+
+              Text(
+
+                "音量設定",
+
+              ),
+
+
+
+            ],
+
+
+          ),
+
+
+
+        ),
+
+
+
+
+
+      ],
+
+
+    );
+
+
+
+  }
+    // =========================
   // ジャケット色取得
   // =========================
 
@@ -187,7 +442,9 @@ class _NowBarHomeState
 
 
 
+
       Map<String,int> colors = {};
+
 
 
 
@@ -206,7 +463,10 @@ class _NowBarHomeState
 
 
           final pixel =
-              image.getPixel(x,y);
+              image.getPixel(
+                x,
+                y,
+              );
 
 
 
@@ -223,12 +483,12 @@ class _NowBarHomeState
 
 
 
+
           int brightness =
               (r + g + b) ~/ 3;
 
 
 
-          // 黒・白を除外
 
           if(
             brightness < 35 ||
@@ -241,7 +501,6 @@ class _NowBarHomeState
 
 
 
-          // 近い色をまとめる
 
           r =
           (r ~/ 20) * 20;
@@ -256,18 +515,26 @@ class _NowBarHomeState
 
 
 
+
+
           String key =
               "$r,$g,$b";
 
 
 
           colors[key] =
+
               (colors[key] ?? 0) + 1;
+
 
 
         }
 
+
       }
+
+
+
 
 
 
@@ -276,148 +543,285 @@ class _NowBarHomeState
 
 
 
+
+
+
       String result =
+
+
           colors.entries
-              .reduce(
-                (a,b)=>
-                a.value > b.value
-                    ?
-                a
-                    :
-                b,
-              )
-              .key;
+
+
+          .reduce(
+
+
+            (a,b)=>
+
+
+            a.value > b.value
+
+
+            ?
+
+            a
+
+
+            :
+
+            b,
+
+
+          )
+
+
+          .key;
+
+
+
+
 
 
 
       List<int> rgb =
+
+
           result
-              .split(",")
-              .map(int.parse)
-              .toList();
+
+
+          .split(",")
+
+
+          .map(int.parse)
+
+
+          .toList();
 
 
 
-            Color newColor =
+
+
+
+
+      Color newColor =
+
+
           Color.fromARGB(
+
+
             255,
+
+
             rgb[0],
+
+
             rgb[1],
+
+
             rgb[2],
+
+
           );
 
 
-      // =========================
-      // 文字用カラー補正
-      // =========================
+
+
+
 
       double brightness =
-          (newColor.red +
-          newColor.green +
-          newColor.blue) / 3;
+
+
+          (
+
+            newColor.red +
+
+            newColor.green +
+
+            newColor.blue
+
+
+          )
+
+
+          /
+
+          3;
+
+
+
 
 
 
       double r =
+
           newColor.red.toDouble();
 
+
+
       double g =
+
           newColor.green.toDouble();
 
+
+
       double b =
+
           newColor.blue.toDouble();
 
 
 
-      // 暗い色なら明るくする
+
+
+
+
+      // 暗い色を明るく
 
       if(brightness < 100){
 
+
         r += 90;
+
         g += 90;
+
         b += 90;
+
 
       }
 
 
-      // 明るすぎる色は少し暗く
+
+
+
+
+
+      // 明るい色を少し暗く
 
       if(brightness > 220){
 
+
         r *= 0.75;
+
         g *= 0.75;
+
         b *= 0.75;
 
+
       }
+
+
+
+
 
 
 
       newColor =
+
+
           Color.fromARGB(
+
 
             255,
 
+
             r.clamp(0,255).toInt(),
+
 
             g.clamp(0,255).toInt(),
 
+
             b.clamp(0,255).toInt(),
 
+
           );
+
+
+
+
 
 
 
       if(mounted){
 
+
         setState((){
 
+
           themeColor =
+
               newColor;
 
+
         });
+
 
       }
 
 
+
+
     }
+
     catch(e){
 
 
       debugPrint(
+
         "Theme color error : $e",
+
       );
 
 
     }
 
+
+
   }
-    // =========================
-  // 背景ジャケット
+
+
+
+
+
+
+
+
+
+  // =========================
+  // 背景画像
   // =========================
 
   Widget backgroundImage(){
 
 
     if(
+
       player.image.isNotEmpty &&
+
       File(player.image).existsSync()
+
     ){
+
 
 
       return Positioned.fill(
 
+
         child:
+
 
         Image.file(
 
+
           File(player.image),
+
 
 
           key:
 
           ValueKey(
+
             "background_$imageVersion",
+
           ),
+
 
 
           fit:
@@ -427,13 +831,18 @@ class _NowBarHomeState
 
         ),
 
+
+
       );
 
 
     }
 
 
+
     return const SizedBox();
+
+
 
   }
 
@@ -446,42 +855,62 @@ class _NowBarHomeState
 
 
   // =========================
-  // 左側ジャケット
+  // アルバム画像
   // =========================
 
   Widget albumImage(){
 
 
+
     if(
+
       player.image.isNotEmpty &&
+
       File(player.image).existsSync()
+
     ){
 
 
+
       final file =
+
           File(player.image);
+
+
 
 
 
       return Image(
 
+
+
         key:
 
         ValueKey(
+
           "${file.path}_$imageVersion",
+
         ),
+
+
 
 
 
         image:
 
+
         FileImage(
+
           file,
+
         ),
 
 
 
+
+
         fit:
+
 
         BoxFit.cover,
 
@@ -489,18 +918,30 @@ class _NowBarHomeState
 
         errorBuilder:
 
-        (context,error,stack){
+
+        (
+          context,
+          error,
+          stack,
+        ){
+
 
 
           return Container(
 
+
             color:
+
             const Color(0xff333333),
+
 
           );
 
 
+
         },
+
+
 
       );
 
@@ -509,10 +950,15 @@ class _NowBarHomeState
 
 
 
+
+
     return Container(
 
+
       color:
+
       const Color(0xff333333),
+
 
     );
 
@@ -531,60 +977,76 @@ class _NowBarHomeState
 
 
     int s =
+
         sec.floor();
 
 
 
     int m =
+
         s ~/ 60;
 
 
 
     int ss =
+
         s % 60;
 
 
 
+
+
     return
+
         "$m:${ss.toString().padLeft(2,'0')}";
 
 
   }
-
-
-
-
-
-
-
-
-
-  @override
+    @override
   Widget build(BuildContext context){
 
 
 
     double position =
+
         player.smoothPosition;
+
+
 
 
 
     double progress =
 
+
+
         player.duration <= 0
 
-            ?
+
+
+        ?
+
+
 
         0
 
-            :
+
+
+        :
+
+
 
         position / player.duration;
 
 
 
+
+
+
     progress =
+
         progress.clamp(0,1);
+
+
 
 
 
@@ -592,18 +1054,34 @@ class _NowBarHomeState
 
     return Scaffold(
 
+
+
       backgroundColor:
+
       Colors.transparent,
+
+
 
 
 
       body:
 
+
+
+
+
       ClipRRect(
+
+
 
         borderRadius:
 
+
         BorderRadius.circular(8),
+
+
+
+
 
 
 
@@ -612,24 +1090,65 @@ class _NowBarHomeState
 
         GestureDetector(
 
+
+
+
+
           onPanStart:(_){
+
+
 
             windowManager.startDragging();
 
+
+
           },
+
+
+
+
+
+
+
+          onSecondaryTapDown:(detail){
+
+
+
+            openContextMenu(
+
+
+              context,
+
+
+              detail,
+
+
+            );
+
+
+
+          },
+
+
+
+
+
 
 
 
           child:
 
 
+
           Stack(
+
+
 
             children:[
 
 
 
-              // 背景画像
+
 
               backgroundImage(),
 
@@ -638,39 +1157,66 @@ class _NowBarHomeState
 
 
 
-              // ぼかし
 
               Positioned.fill(
 
+
+
                 child:
+
+
 
                 BackdropFilter(
 
+
+
                   filter:
+
+
 
                   ImageFilter.blur(
 
+
+
                     sigmaX:8,
+
+
 
                     sigmaY:8,
 
+
+
                   ),
+
+
+
+
 
 
 
                   child:
 
+
+
                   Container(
+
+
 
                     color:
 
-                    Colors.black.withOpacity(
-                      0.35,
-                    ),
+
+                    Colors.black.withOpacity(0.35),
+
+
 
                   ),
 
+
+
+
                 ),
+
+
 
               ),
 
@@ -679,21 +1225,30 @@ class _NowBarHomeState
 
 
 
-              // 暗幕
+
 
               Positioned.fill(
 
+
+
                 child:
+
+
 
                 Container(
 
+
+
                   color:
 
-                  Colors.black.withOpacity(
-                    0.25,
-                  ),
+
+                  Colors.black.withOpacity(0.25),
+
+
 
                 ),
+
+
 
               ),
 
@@ -702,57 +1257,98 @@ class _NowBarHomeState
 
 
 
-              // メインUI
 
               Container(
 
+
+
                 padding:
+
 
                 const EdgeInsets.symmetric(
 
+
                   horizontal:8,
 
+
                 ),
+
+
+
+
+
+
+
                 child:
 
+
+
                 Row(
+
+
 
                   children:[
 
 
 
+
                     SizedBox(
 
+
+
                       width:45,
+
+
 
                       height:45,
 
 
+
                       child:
+
+
 
                       ClipRRect(
 
+
+
                         borderRadius:
+
 
                         BorderRadius.circular(6),
 
 
+
+
                         child:
+
 
                         albumImage(),
 
 
+
                       ),
 
+
+
                     ),
+
 
 
 
 
 
                     const SizedBox(
+
+
+
                       width:8,
+
+
+
                     ),
+
+
 
 
 
@@ -761,13 +1357,20 @@ class _NowBarHomeState
 
                     Expanded(
 
+
+
                       child:
 
+
+
                       Column(
+
+
 
                         mainAxisAlignment:
 
                         MainAxisAlignment.center,
+
 
 
                         crossAxisAlignment:
@@ -780,83 +1383,188 @@ class _NowBarHomeState
 
 
 
-                          TweenAnimationBuilder<Color?>(
-  tween: ColorTween(
-    end: themeColor,
+
+
+
+
+                          // =========================
+                          // タイトル
+                          // 右→左スライド + 色変化
+                          // =========================
+
+
+                          AnimatedSwitcher(
+  duration:
+  const Duration(
+    milliseconds: 0,
   ),
-  duration: const Duration(
-    milliseconds: 600,
-  ),
 
-  builder: (context, color, child){
+  child:
 
-    return Text(
+  ClipRect(
 
-      player.title.isEmpty
-          ?
-      "No Music"
-          :
-      player.title,
+    child:
 
+    TweenAnimationBuilder<double>(
 
-      maxLines:1,
+      key:
 
-      overflow:
-      TextOverflow.ellipsis,
+      ValueKey(
+        displayedTitle,
+      ),
 
+      tween:
 
-      style: TextStyle(
-
-        fontSize:13,
-
-        fontWeight:
-        FontWeight.bold,
+      Tween(
+        begin: 1.0,
+        end: 0.0,
+      ),
 
 
-        color:
-        color,
+      duration:
+
+      const Duration(
+        milliseconds:450,
+      ),
+
+
+      curve:
+
+      Curves.easeOutQuart,
+
+
+      builder:
+
+      (
+        context,
+        value,
+        child,
+      ){
+
+        return Transform.translate(
+
+          offset:
+
+          Offset(
+
+            35 * value,
+
+            0,
+
+          ),
+
+
+          child:
+
+          Align(
+
+            alignment:
+
+            Alignment.centerLeft,
+
+
+            child:
+
+            child,
+
+
+          ),
+
+        );
+
+      },
+
+
+      child:
+
+      TweenAnimationBuilder<Color?>(
+        
+        tween:
+
+        ColorTween(
+          end:
+          themeColor,
+        ),
+
+
+        duration:
+
+        const Duration(
+          milliseconds:600,
+        ),
+
+
+        builder:
+
+        (
+          context,
+          color,
+          child,
+        ){
+
+          return Text(
+
+            displayedTitle.isEmpty
+
+            ?
+
+            "No Music"
+
+            :
+
+            displayedTitle,
+
+
+            maxLines:
+            1,
+
+
+            overflow:
+            TextOverflow.ellipsis,
+
+
+            style:
+
+            TextStyle(
+
+              fontSize:
+              13,
+
+              fontWeight:
+              FontWeight.bold,
+
+              color:
+              color,
+
+            ),
+
+          );
+
+        },
+
 
       ),
 
-    );
 
-  },
+    ),
+
+  ),
 
 ),
 
+                      
 
 
 
 
-                          Text(
 
-                            player.artist,
-
-
-                            maxLines:
-
-                            1,
+                          const SizedBox(
 
 
-                            overflow:
 
-                            TextOverflow.ellipsis,
-
-
-                            style:
-
-                            TextStyle(
-
-                              fontSize:10,
+                            height:2,
 
 
-                              color:
-
-                              themeColor.withOpacity(
-                                0.75,
-                              ),
-
-                            ),
 
                           ),
 
@@ -865,34 +1573,262 @@ class _NowBarHomeState
 
 
 
-                          Row(
+
+                          // =========================
+                          // アーティスト
+                          // 右→左スライド
+                          // =========================
+
+
+                          // =========================
+// アーティスト
+// 右→左スライド + フェード
+// =========================
+
+
+AnimatedSwitcher(
+
+  duration:
+
+  const Duration(
+    milliseconds:0,
+  ),
+
+
+
+  child:
+
+
+  ClipRect(
+
+
+    child:
+
+
+    TweenAnimationBuilder<double>(
+
+
+      key:
+
+      ValueKey(
+        displayedArtist,
+      ),
+
+
+
+      tween:
+
+
+      Tween(
+
+        begin:
+        1.0,
+
+        end:
+        0.0,
+
+      ),
+
+
+
+      duration:
+
+
+      const Duration(
+
+        milliseconds:450,
+
+      ),
+
+
+
+      curve:
+
+
+      Curves.easeOutQuart,
+
+
+
+
+      builder:
+
+
+      (
+        context,
+        value,
+        child,
+      ){
+
+
+
+        return Opacity(
+
+
+          opacity:
+
+          1 - value,
+
+
+
+          child:
+
+
+          Transform.translate(
+
+
+
+            offset:
+
+
+            Offset(
+
+              35 * value,
+
+              0,
+
+            ),
+
+
+
+            child:
+
+
+            Align(
+
+
+              alignment:
+
+              Alignment.centerLeft,
+
+
+
+              child:
+
+              child,
+
+
+
+            ),
+
+
+
+          ),
+
+
+
+        );
+
+
+
+      },
+
+
+
+
+
+      child:
+
+
+      Text(
+
+
+
+        displayedArtist,
+
+
+
+        maxLines:
+
+        1,
+
+
+
+        overflow:
+
+        TextOverflow.ellipsis,
+
+
+
+        style:
+
+
+        TextStyle(
+
+
+
+          fontSize:
+
+          10,
+
+
+
+          color:
+
+
+          themeColor.withOpacity(0.75),
+
+
+
+        ),
+
+
+
+      ),
+
+
+
+    ),
+
+
+  ),
+
+
+),
+                                                    Row(
+
+
 
                             children:[
 
 
 
+
+
                               Expanded(
+
+
 
                                 child:
 
+
                                 LinearProgressIndicator(
 
+
+
                                   value:
+
 
                                   progress,
 
 
+
                                   minHeight:
+
 
                                   3,
 
 
+
                                   color:
+
 
                                   themeColor,
 
 
+
                                 ),
+
+
 
                               ),
 
@@ -900,8 +1836,15 @@ class _NowBarHomeState
 
 
 
+
                               const SizedBox(
+
+
+
                                 width:5,
+
+
+
                               ),
 
 
@@ -910,35 +1853,60 @@ class _NowBarHomeState
 
                               Text(
 
+
+
                                 "${timeText(position)}/${timeText(player.duration)}",
+
+
+
 
 
                                 style:
 
+
                                 const TextStyle(
 
-                                  fontSize:8,
+
+
+                                  fontSize:
+
+
+                                  8,
+
 
 
                                   color:
 
+
                                   Colors.white70,
 
+
+
                                 ),
+
+
 
                               ),
 
 
 
+
                             ],
+
+
 
                           ),
 
 
 
+
                         ],
 
+
+
                       ),
+
+
 
                     ),
 
@@ -950,12 +1918,17 @@ class _NowBarHomeState
 
                     IconButton(
 
+
+
                       padding:
+
 
                       EdgeInsets.zero,
 
 
+
                       constraints:
+
 
                       const BoxConstraints(),
 
@@ -963,23 +1936,39 @@ class _NowBarHomeState
 
                       icon:
 
+
                       const Icon(
+
+
 
                         Icons.skip_previous,
 
+
+
                         size:20,
 
+
+
                       ),
+
 
 
 
                       onPressed:(){
 
+
+
                         player.command(
+
                           "previous",
+
                         );
 
+
+
                       },
+
+
 
                     ),
 
@@ -989,55 +1978,93 @@ class _NowBarHomeState
 
 
 
+
+
                     IconButton(
 
+
+
                       padding:
+
 
                       EdgeInsets.zero,
 
 
+
                       constraints:
+
 
                       const BoxConstraints(),
 
 
 
+
                       icon:
+
 
                       Icon(
 
+
+
                         player.isPlaying
 
-                            ?
+
+
+                        ?
+
+
 
                         Icons.pause_circle
 
-                            :
+
+
+                        :
+
+
 
                         Icons.play_circle_fill,
+
+
+
 
 
                         size:28,
 
 
+
+
+
                         color:
 
+
                         themeColor,
+
 
 
                       ),
 
 
 
+
                       onPressed:(){
 
+
+
                         player.command(
+
                           "playpause",
+
                         );
+
+
 
                       },
 
+
+
                     ),
+
+
 
 
 
@@ -1047,38 +2074,63 @@ class _NowBarHomeState
 
                     IconButton(
 
+
+
                       padding:
+
 
                       EdgeInsets.zero,
 
 
+
                       constraints:
+
 
                       const BoxConstraints(),
 
 
 
+
                       icon:
+
 
                       const Icon(
 
+
+
                         Icons.skip_next,
 
+
+
                         size:20,
+
+
 
                       ),
 
 
 
+
                       onPressed:(){
 
+
+
                         player.command(
+
                           "next",
+
                         );
+
+
 
                       },
 
+
+
                     ),
+
+
+
 
 
 
@@ -1086,29 +2138,52 @@ class _NowBarHomeState
 
 
                     const SizedBox(
+
+
+
                       width:4,
+
+
+
                     ),
+
 
 
 
                   ],
 
+
+
                 ),
+
+
 
               ),
 
+
+
             ],
+
+
 
           ),
 
+
+
         ),
 
+
+
       ),
+
+
 
     );
 
 
+
   }
+
 
 
 
@@ -1121,12 +2196,17 @@ class _NowBarHomeState
   void dispose(){
 
 
+
     player.dispose();
+
 
 
     super.dispose();
 
+
+
   }
+
 
 
 }
