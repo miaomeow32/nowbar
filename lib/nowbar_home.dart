@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -38,10 +39,6 @@ class _NowBarHomeState
 
 
   DateTime? lastModified;
-
-
-
-
 
 
 
@@ -89,12 +86,11 @@ class _NowBarHomeState
 
 
 
-              // Flutter画像キャッシュ削除
-
               PaintingBinding
                   .instance
                   .imageCache
                   .clear();
+
 
               PaintingBinding
                   .instance
@@ -130,11 +126,7 @@ class _NowBarHomeState
 
     player.start();
 
-
   }
-
-
-
 
 
 
@@ -160,6 +152,51 @@ class _NowBarHomeState
     return
         "$m:${ss.toString().padLeft(2,'0')}";
 
+  }
+    // =========================
+  // 背景用ジャケット画像
+  // =========================
+
+  Widget backgroundImage(){
+
+
+    if(
+      player.image.isNotEmpty &&
+      File(player.image).existsSync()
+    ){
+
+
+      return Positioned.fill(
+
+        child:
+
+        Image.file(
+
+          File(player.image),
+
+
+          key:
+
+          ValueKey(
+            "bg_${player.image}_$imageVersion",
+          ),
+
+
+          fit:
+
+          BoxFit.cover,
+
+
+        ),
+
+      );
+
+
+    }
+
+
+
+    return const SizedBox();
 
   }
 
@@ -169,14 +206,16 @@ class _NowBarHomeState
 
 
 
-
+  // =========================
+  // 左側ジャケット画像
+  // =========================
 
   Widget albumImage(){
 
 
     if(
-    player.image.isNotEmpty &&
-        File(player.image).existsSync()
+      player.image.isNotEmpty &&
+      File(player.image).existsSync()
     ){
 
 
@@ -207,8 +246,8 @@ class _NowBarHomeState
         key:
 
         ValueKey(
-  "${file.path}_${stamp}_$imageVersion",
-),
+          "${file.path}_${stamp}_$imageVersion",
+        ),
 
 
 
@@ -220,9 +259,15 @@ class _NowBarHomeState
 
 
 
-        width:45,
+        width:
 
-        height:45,
+        45,
+
+
+
+        height:
+
+        45,
 
 
 
@@ -238,7 +283,7 @@ class _NowBarHomeState
 
         errorBuilder:
 
-            (context,error,stack){
+        (context,error,stack){
 
 
           return Container(
@@ -270,38 +315,8 @@ class _NowBarHomeState
 
 
   }
-
-
-
-
-
-
-
-
-
-  @override
-  void dispose(){
-
-
-    player.dispose();
-
-
-    super.dispose();
-
-
-  }
-
-
-
-
-
-
-
-
-
-  @override
+    @override
   Widget build(BuildContext context){
-
 
 
     double position =
@@ -320,9 +335,6 @@ class _NowBarHomeState
 
     progress =
         progress.clamp(0,1);
-
-
-
 
 
 
@@ -360,326 +372,214 @@ class _NowBarHomeState
           child:
 
 
-          Container(
+          Stack(
 
-            padding:
-
-            const EdgeInsets.symmetric(
-              horizontal:8,
-            ),
+            children:[
 
 
 
-            decoration:
+              // =====================
+              // 背景ジャケット
+              // =====================
 
-            BoxDecoration(
-
-              color:
-              const Color(0xff181818),
-
-
-              borderRadius:
-              BorderRadius.circular(8),
-
-            ),
+              backgroundImage(),
 
 
 
 
-            child:
 
+              // =====================
+              // ぼかし + 暗幕
+              // =====================
 
-            Row(
+              Positioned.fill(
 
-              children:[
+                child:
 
+                Container(
 
+                  color:
 
-                SizedBox(
-
-                  width:45,
-
-                  height:45,
-
+                  Colors.black.withOpacity(
+                    0.35,
+                  ),
 
                   child:
 
-                  ClipRRect(
+                  BackdropFilter(
 
-                    borderRadius:
-                    BorderRadius.circular(6),
+                    filter:
+
+                    ImageFilter.blur(
+
+                      sigmaX:10,
+
+                      sigmaY:10,
+
+                    ),
 
 
                     child:
 
-                    albumImage(),
+                    Container(
 
+                      color:
+
+                      Colors.transparent,
+
+                    ),
 
                   ),
+
+                ),
+
+              ),
+
+
+
+
+
+              // =====================
+              // 元のUI
+              // =====================
+
+              Container(
+
+                padding:
+
+                const EdgeInsets.symmetric(
+                  horizontal:8,
+                ),
+
+
+
+                decoration:
+
+                BoxDecoration(
+
+                  borderRadius:
+
+                  BorderRadius.circular(8),
 
                 ),
 
 
 
 
+                child:
 
-                const SizedBox(width:8),
+                Row(
 
+                  children:[
 
 
 
+                    SizedBox(
 
+                      width:45,
 
-                Expanded(
+                      height:45,
 
-                  child:
 
+                      child:
 
-                  Column(
+                      ClipRRect(
 
-                    mainAxisAlignment:
-                    MainAxisAlignment.center,
+                        borderRadius:
 
+                        BorderRadius.circular(6),
 
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
 
+                        child:
 
+                        albumImage(),
 
-                    children:[
 
+                      ),
 
+                    ),
 
-                      AnimatedSwitcher(
 
-  duration:
-  const Duration(milliseconds:300),
 
 
-  layoutBuilder:
-      (currentChild, previousChildren){
 
-    return Stack(
+                    const SizedBox(width:8),
 
-      alignment:
-      Alignment.centerLeft,
 
 
-      children:[
 
-        ...previousChildren,
 
-        if(currentChild != null)
-          currentChild,
 
-      ],
+                    Expanded(
 
-    );
+                      child:
 
-  },
+                      Column(
 
+                        mainAxisAlignment:
 
-  transitionBuilder:
-      (child, animation){
+                        MainAxisAlignment.center,
 
-    return FadeTransition(
 
-      opacity: animation,
+                        crossAxisAlignment:
 
+                        CrossAxisAlignment.start,
 
-      child:
 
-      SlideTransition(
-
-        position:
-
-        Tween<Offset>(
-
-          begin:
-          const Offset(0,0.08),
-
-          end:
-          Offset.zero,
-
-        ).animate(animation),
-
-
-        child: child,
-
-      ),
-
-    );
-
-  },
-
-
-  child:
-
-  Text(
-
-    player.title.isEmpty
-
-        ?
-
-    "No Music"
-
-        :
-
-    player.title,
-
-
-    key:
-
-    ValueKey(player.title),
-
-
-    maxLines:1,
-
-
-    overflow:
-    TextOverflow.ellipsis,
-
-
-    style:
-
-    const TextStyle(
-
-      fontSize:13,
-
-      fontWeight:
-      FontWeight.bold,
-
-    ),
-
-  ),
-
-),
-
-
-
-
-
-
-AnimatedSwitcher(
-
-  duration:
-  const Duration(milliseconds:300),
-
-
-  layoutBuilder:
-      (currentChild, previousChildren){
-
-    return Stack(
-
-      alignment:
-      Alignment.centerLeft,
-
-
-      children:[
-
-        ...previousChildren,
-
-        if(currentChild != null)
-          currentChild,
-
-      ],
-
-    );
-
-  },
-
-
-  transitionBuilder:
-      (child, animation){
-
-    return FadeTransition(
-
-      opacity: animation,
-
-
-      child:
-
-      SlideTransition(
-
-        position:
-
-        Tween<Offset>(
-
-          begin:
-          const Offset(0,0.08),
-
-          end:
-          Offset.zero,
-
-        ).animate(animation),
-
-
-        child: child,
-
-      ),
-
-    );
-
-  },
-
-
-  child:
-
-  Text(
-
-    player.artist,
-
-
-    key:
-
-    ValueKey(player.artist),
-
-
-    maxLines:1,
-
-
-    overflow:
-    TextOverflow.ellipsis,
-
-
-    style:
-
-    const TextStyle(
-
-      fontSize:10,
-
-      color:
-      Colors.white70,
-
-    ),
-
-  ),
-
-),
-
-
-
-
-
-                      Row(
 
                         children:[
 
 
 
-                          Expanded(
+                          AnimatedSwitcher(
+
+                            duration:
+
+                            const Duration(
+                              milliseconds:300,
+                            ),
+
 
                             child:
 
-                            LinearProgressIndicator(
+                            Text(
 
-                              value:
-                              progress,
+                              player.title.isEmpty
+
+                                  ?
+
+                              "No Music"
+
+                                  :
+
+                              player.title,
 
 
-                              minHeight:
-                              3,
+                              key:
 
+                              ValueKey(
+                                player.title,
+                              ),
+
+
+                              maxLines:1,
+
+
+                              overflow:
+
+                              TextOverflow.ellipsis,
+
+
+                              style:
+
+                              const TextStyle(
+
+                                fontSize:13,
+
+                                fontWeight:
+                                FontWeight.bold,
+
+                              ),
 
                             ),
 
@@ -689,187 +589,259 @@ AnimatedSwitcher(
 
 
 
-                          const SizedBox(width:5),
+
+                          AnimatedSwitcher(
+
+                            duration:
+
+                            const Duration(
+                              milliseconds:300,
+                            ),
 
 
+                            child:
+
+                            Text(
+
+                              player.artist,
 
 
+                              key:
 
-                          Text(
+                              ValueKey(
+                                player.artist,
+                              ),
 
-                            "${timeText(position)}/${timeText(player.duration)}",
+
+                              maxLines:1,
 
 
-                            style:
+                              overflow:
 
-                            const TextStyle(
+                              TextOverflow.ellipsis,
 
-                              fontSize:8,
 
-                              color:
-                              Colors.white60,
+                              style:
+
+                              const TextStyle(
+
+                                fontSize:10,
+
+                                color:
+                                Colors.white70,
+
+                              ),
 
                             ),
 
                           ),
+
+
+
+
+
+                          Row(
+
+                            children:[
+
+
+
+                              Expanded(
+
+                                child:
+
+                                LinearProgressIndicator(
+
+                                  value:
+                                  progress,
+
+
+                                  minHeight:
+                                  3,
+
+
+                                ),
+
+                              ),
+
+
+
+
+
+                              const SizedBox(width:5),
+
+
+
+
+
+                              Text(
+
+                                "${timeText(position)}/${timeText(player.duration)}",
+
+
+                                style:
+
+                                const TextStyle(
+
+                                  fontSize:8,
+
+                                  color:
+                                  Colors.white60,
+
+                                ),
+
+                              ),
+
+
+                            ],
+
+                          ),
+
 
 
                         ],
 
                       ),
 
+                    ),
 
 
-                    ],
 
-                  ),
+
+
+
+                    IconButton(
+
+                      padding:
+                      EdgeInsets.zero,
+
+
+                      constraints:
+                      const BoxConstraints(),
+
+
+                      icon:
+
+                      const Icon(
+
+                        Icons.skip_previous,
+
+                        size:20,
+
+                      ),
+
+
+
+                      onPressed:(){
+
+                        player.command(
+                          "previous",
+                        );
+
+                      },
+
+                    ),
+
+
+
+
+
+
+
+                    IconButton(
+
+                      padding:
+                      EdgeInsets.zero,
+
+
+                      constraints:
+                      const BoxConstraints(),
+
+
+
+                      icon:
+
+                      Icon(
+
+                        player.isPlaying
+
+                            ?
+
+                        Icons.pause_circle
+
+                            :
+
+                        Icons.play_circle_fill,
+
+
+                        size:28,
+
+                      ),
+
+
+
+                      onPressed:(){
+
+                        player.command(
+                          "playpause",
+                        );
+
+                      },
+
+                    ),
+
+
+
+
+
+
+                    IconButton(
+
+                      padding:
+                      EdgeInsets.zero,
+
+
+                      constraints:
+                      const BoxConstraints(),
+
+
+
+                      icon:
+
+                      const Icon(
+
+                        Icons.skip_next,
+
+                        size:20,
+
+                      ),
+
+
+
+                      onPressed:(){
+
+                        player.command(
+                          "next",
+                        );
+
+                      },
+
+                    ),
+
+
+
+
+
+                    const SizedBox(width:4),
+
+
+                  ],
 
                 ),
 
+              ),
 
-
-
-
-
-                IconButton(
-
-                  padding:
-                  EdgeInsets.zero,
-
-
-                  constraints:
-                  const BoxConstraints(),
-
-
-
-                  icon:
-
-                  const Icon(
-
-                    Icons.skip_previous,
-
-                    size:20,
-
-                  ),
-
-
-
-                  onPressed:(){
-
-                    player.command(
-                      "previous",
-                    );
-
-                  },
-
-                ),
-
-
-
-
-
-
-
-
-                IconButton(
-
-                  padding:
-                  EdgeInsets.zero,
-
-
-                  constraints:
-                  const BoxConstraints(),
-
-
-
-                  icon:
-
-                  Icon(
-
-                    player.isPlaying
-
-                        ?
-
-                    Icons.pause_circle
-
-                        :
-
-                    Icons.play_circle_fill,
-
-
-                    size:28,
-
-                  ),
-
-
-
-                  onPressed:(){
-
-
-                    player.command(
-                      "playpause",
-                    );
-
-
-                  },
-
-
-                ),
-
-
-
-
-
-
-
-                IconButton(
-
-                  padding:
-                  EdgeInsets.zero,
-
-
-                  constraints:
-                  const BoxConstraints(),
-
-
-
-                  icon:
-
-                  const Icon(
-
-                    Icons.skip_next,
-
-                    size:20,
-
-                  ),
-
-
-
-                  onPressed:(){
-
-
-                    player.command(
-                      "next",
-                    );
-
-
-                  },
-
-
-                ),
-
-
-
-
-
-
-                const SizedBox(width:4),
-
-
-
-              ],
-
-            ),
+            ],
 
           ),
 

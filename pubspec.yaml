@@ -28,6 +28,10 @@ dependencies:
   bitsdojo_window: ^0.1.6
 
 
+  # 画像処理
+  image: ^4.3.0
+
+
   # その他
   http: ^1.2.2
   url_launcher: ^6.3.2

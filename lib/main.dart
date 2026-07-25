@@ -46,11 +46,17 @@ void main() async {
   await windowManager.ensureInitialized();
 
   const windowOptions = WindowOptions(
-    size: Size(520, 55),
-    minimumSize: Size(520, 55),
-    maximumSize: Size(520, 55),
+    // 横450 縦55
+    size: Size(450, 55),
+
+    minimumSize: Size(450, 55),
+
+    maximumSize: Size(450, 55),
+
     backgroundColor: Colors.transparent,
+
     skipTaskbar: false,
+
     titleBarStyle: TitleBarStyle.hidden,
   );
 
@@ -66,8 +72,10 @@ void main() async {
   doWhenWindowReady(() {
     final win = appWindow;
 
-    win.minSize = const Size(520, 55);
-    win.size = const Size(520, 55);
+    // 横450 縦55
+    win.minSize = const Size(450, 55);
+
+    win.size = const Size(450, 55);
 
     win.show();
   });
@@ -77,6 +85,7 @@ void main() async {
   );
 }
 
+
 class NowBarApp extends StatelessWidget {
   const NowBarApp({super.key});
 
@@ -84,10 +93,13 @@ class NowBarApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         brightness: Brightness.dark,
+
         scaffoldBackgroundColor: Colors.transparent,
       ),
+
       home: const NowBarHome(),
     );
   }
