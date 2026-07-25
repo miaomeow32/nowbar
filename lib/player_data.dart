@@ -1,283 +1,112 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-
 
 class PlayerData {
+  // AppData\Roaming\NowBar を使用
+  late final String basePath =
+      "${Platform.environment['APPDATA']}\\NowBar";
 
+  late final String jsonPath =
+      "$basePath\\nowplaying.json";
 
-  final String jsonPath =
-      r"C:\dev\nowbar\nowplaying.json";
-
-
-  final String commandPath =
-      r"C:\dev\nowbar\command.json";
-
-
+  late final String commandPath =
+      "$basePath\\command.json";
 
   String title = "";
-
   String artist = "";
-
   String image = "";
-
 
   bool isPlaying = false;
 
-
   double duration = 1;
-
   double position = 0;
 
-
-
+  // 表示用補間
   double syncPosition = 0;
-
   DateTime? lastSync;
-
-
 
   Timer? timer;
 
-
   Function? onUpdate;
 
-
-
-
-
-  void start(){
-
-
-    timer = Timer.periodic(
-
-      const Duration(milliseconds:200),
-
-          (_) {
-
-        read();
-
-      },
-
-    );
-
-
+  PlayerData() {
+    // AppData\Roaming\NowBar フォルダが無ければ作成
+    Directory(basePath).createSync(recursive: true);
   }
 
-
-
-
-
-
+  void start() {
+    timer = Timer.periodic(
+      const Duration(milliseconds: 200),
+      (_) {
+        read();
+      },
+    );
+  }
 
   Future<void> read() async {
-
-
-    try{
-
-
+    try {
       final file = File(jsonPath);
 
-
-
-      if(!await file.exists()){
-
+      if (!await file.exists()) {
         return;
-
       }
 
+      final text = await file.readAsString();
+      final data = jsonDecode(text);
 
+      title = data["title"]?.toString() ?? "";
+      artist = data["artist"]?.toString() ?? "";
+      image = data["image"]?.toString() ?? "";
 
-
-      final text =
-      await file.readAsString();
-
-
-
-
-      final data =
-      jsonDecode(text);
-
-
-
-
-
-      title =
-          data["title"]?.toString() ?? "";
-
-
-      artist =
-          data["artist"]?.toString() ?? "";
-
-
-      image =
-          data["image"]?.toString() ?? "";
-
-
-
-
-
-      bool playing =
-          data["isPlaying"] == true;
-
-
-
-      double newDuration =
-      (data["duration"] ?? 1)
-          .toDouble();
-
-
-
-      double newPosition =
-      (data["position"] ?? 0)
-          .toDouble();
-
-
-
+      isPlaying = data["isPlaying"] == true;
 
       duration =
-          newDuration;
-
-
-
-      // 再生位置同期
-
-      syncPosition =
-          newPosition;
-
-
-      lastSync =
-          DateTime.now();
-
+          (data["duration"] ?? 1).toDouble();
 
       position =
-          newPosition;
+          (data["position"] ?? 0).toDouble();
 
+      syncPosition = position;
+      lastSync = DateTime.now();
 
-
-      isPlaying =
-          playing;
-
-
-
-
-      if(onUpdate != null){
-
-        onUpdate!();
-
-      }
-
-
+      onUpdate?.call();
+    } catch (e) {
+      print("PlayerData error: $e");
     }
-
-    catch(e){
-
-      print(
-          "PlayerData error $e"
-      );
-
-    }
-
-
   }
-
-
-
-
-
-
-
 
   double get smoothPosition {
-
-
-    if(
-    isPlaying &&
-        lastSync != null
-    ){
-
-
+    if (isPlaying && lastSync != null) {
       double value =
-
           syncPosition +
-
               DateTime.now()
-                  .difference(lastSync!)
-                  .inMilliseconds
-                  /
-                  1000;
+                      .difference(lastSync!)
+                      .inMilliseconds /
+                  1000.0;
 
-
-
-
-      if(value > duration){
-
-        value = duration;
-
-      }
-
+      if (value < 0) value = 0;
+      if (value > duration) value = duration;
 
       return value;
-
-
     }
-
 
     return position;
-
-
   }
-
-
-
-
-
-
-
-
 
   Future<void> command(String value) async {
-
-
-    try{
-
-
-      await File(commandPath)
-
-          .writeAsString(
-
+    try {
+      await File(commandPath).writeAsString(
         jsonEncode({
-
-          "command":value
-
+          "command": value,
         }),
-
       );
-
-
+    } catch (e) {
+      print("Command error: $e");
     }
-
-    catch(e){
-
-      print(e);
-
-    }
-
-
   }
 
-
-
-
-
-
-
-
-  void dispose(){
-
+  void dispose() {
     timer?.cancel();
-
   }
-
-
 }
