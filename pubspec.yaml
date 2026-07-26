@@ -1,53 +1,38 @@
 name: nowbar
-
 description: "A new Flutter project."
-
 publish_to: 'none'
-
 version: 1.0.0+1
-
 
 environment:
   sdk: ^3.12.2
 
-
 dependencies:
-
   flutter:
     sdk: flutter
 
-
   cupertino_icons: ^1.0.8
-
 
   # ウィンドウ制御
   window_manager: ^0.5.2
 
+  # 画面・ディスプレイ情報取得（追加！）
+  screen_retriever: ^0.2.1
 
   # ウィンドウドラッグ・サイズ制御
   bitsdojo_window: ^0.1.6
 
-
   # 画像処理
   image: ^4.3.0
-
 
   # その他
   http: ^1.2.2
   url_launcher: ^6.3.2
 
-
-
 dev_dependencies:
-
   flutter_test:
     sdk: flutter
 
-
   flutter_lints: ^6.0.0
 
-
-
 flutter:
-
   uses-material-design: true

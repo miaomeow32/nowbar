@@ -1,106 +1,77 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:window_manager/window_manager.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 import 'nowbar_home.dart';
 
-Future<void> startBridge() async {
-  try {
-    // Bridgeが既に起動しているか確認
-    final result = await Process.run(
-      "tasklist",
-      ["/FI", "IMAGENAME eq NowBarBridge2.exe"],
-    );
-
-    if (result.stdout.toString().contains("NowBarBridge2.exe")) {
-      return;
-    }
-
-    // nowbar.exe と同じフォルダ
-    final exeFolder =
-        File(Platform.resolvedExecutable).parent.path;
-
-    final bridge =
-        File("$exeFolder\\NowBarBridge2.exe");
-
-    if (bridge.existsSync()) {
-      await Process.start(
-        bridge.path,
-        [],
-        mode: ProcessStartMode.detached,
-      );
-    }
-  } catch (e) {
-    debugPrint("Bridge start error : $e");
-  }
-}
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // Bridge自動起動
-  await startBridge();
+  WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
 
-  const windowOptions = WindowOptions(
-    // 横450 縦55
-    size: Size(450, 55),
 
-    minimumSize: Size(450, 55),
+  WindowOptions windowOptions = const WindowOptions(
 
-    maximumSize: Size(450, 55),
+    size: Size(360, 45),
+
+    // バー表示と同じ高さを最小値にする。
+
+    minimumSize: Size(200, 45),
+
+    center: true,
 
     backgroundColor: Colors.transparent,
 
     skipTaskbar: false,
 
     titleBarStyle: TitleBarStyle.hidden,
+
   );
 
-  await windowManager.waitUntilReadyToShow(
-    windowOptions,
-    () async {
-      await windowManager.show();
-      await windowManager.focus();
-      await windowManager.setAlwaysOnTop(true);
-    },
-  );
 
-  doWhenWindowReady(() {
-    final win = appWindow;
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
 
-    // 横450 縦55
-    win.minSize = const Size(450, 55);
+    await windowManager.setAsFrameless();
 
-    win.size = const Size(450, 55);
+    await windowManager.setHasShadow(false);
 
-    win.show();
+    await windowManager.setResizable(false);
+
+    // 表示するバーとウィンドウの高さを一致させる。
+    await windowManager.setSize(const Size(360, 45));
+    await windowManager.show();
+
+    await windowManager.focus();
+
   });
 
-  runApp(
-    const NowBarApp(),
-  );
+
+  runApp(const MyApp());
+
 }
 
 
-class NowBarApp extends StatelessWidget {
-  const NowBarApp({super.key});
+class MyApp extends StatelessWidget {
+
+  const MyApp({super.key});
+
 
   @override
+
   Widget build(BuildContext context) {
+
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        brightness: Brightness.dark,
-
-        scaffoldBackgroundColor: Colors.transparent,
-      ),
+      theme: ThemeData.dark(),
 
       home: const NowBarHome(),
+
     );
+
   }
-}
+
+} 
